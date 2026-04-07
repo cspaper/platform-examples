@@ -1,5 +1,5 @@
 <h1>
-  <img src="images/logo.png" alt="CSPaper logo" width="32" style="vertical-align: middle; margin-right: 8px;" />
+  <img src="images/logo.svg" alt="CSPaper logo" width="32" style="vertical-align: middle; margin-right: 8px;" />
   Partner Platform Examples
 </h1>
 
