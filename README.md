@@ -147,14 +147,14 @@ Concretely, the polling script does the following:
 1. Reads `./output/submissions.json`.
 2. Checks the review status for each stored job.
 3. Waits and retries until each job is completed, failed, or timeout is reached.
-4. Saves each completed result as a Markdown file in `./output` named after pattern `<paper_stem>__<agent_id>.md`, such as `./output/tmlr-5831__TMLR_regular_2026_1.md`
+4. Saves each completed result as a Markdown file in `./output` named after pattern `<paper_stem>__<agent_id>.md`, such as `./output/tmlr-5831__ICLR_main_2026_1.md`
 
 ### Example Run
 
 Example submission:
 
 ```text
-python agentic-review/submit-batch.py --agent-id TMLR_regular_2026_1
+python agentic-review/submit-batch.py --agent-id ICLR_main_2026_1
 Found 3 PDF(s): 3 to submit, 0 already recorded
   submitted tmlr-5831.pdf -> job a0fa4ad6-8e46-4815-bbe7-8b19467bad72
   submitted tmlr-6121.pdf -> job 7e9c681e-cec9-439b-9ead-4eacf915c71c
@@ -181,10 +181,10 @@ Polling 3 job(s) — interval 30s, timeout 1800s
   3 job(s) still pending — waiting 30s...
   3 job(s) still pending — waiting 30s...
   3 job(s) still pending — waiting 30s...
-  [COMPLETED] tmlr-5831.pdf -> output/tmlr-5831__TMLR_regular_2026_1.md
+  [COMPLETED] tmlr-5831.pdf -> output/tmlr-5831__ICLR_main_2026_1.md
   2 job(s) still pending — waiting 30s...
-  [COMPLETED] tmlr-6121.pdf -> output/tmlr-6121__TMLR_regular_2026_1.md
-  [COMPLETED] tmlr-6722.pdf -> output/tmlr-6722__TMLR_regular_2026_1.md
+  [COMPLETED] tmlr-6121.pdf -> output/tmlr-6121__ICLR_main_2026_1.md
+  [COMPLETED] tmlr-6722.pdf -> output/tmlr-6722__ICLR_main_2026_1.md
 
 All jobs collected.
 ```
