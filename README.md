@@ -77,10 +77,10 @@ You can use a different input folder with `--paper-dir`, but if you do, use the 
 Run from the repository root:
 
 ```bash
-$ python agentic-review/submit-batch.py --agent-id="AAAI_main technical_2026_1"
+$ python agentic-review/submit-batch.py --agent-id="<your-agent-id>"
 ```
 
-Note: you need to select the correct `agent-id` for your target venue or review template.
+Replace `<your-agent-id>` with the review template you want to use.
 
 The current list of available agent IDs is provided here:
 https://cspaper.org/platform/review
@@ -111,17 +111,11 @@ What the script does:
 ./output/submissions.json
 ```
 
-Each record includes:
-
-- `filename`
-- `job_id`
-- `agent_id`
-- `submitted_at`
-
 > **Note**: Before sending new requests, the submission script checks existing records in `submissions.json`.
-> A paper is skipped only when the same combination of `filename` and `agent_id` has already been submitted.
+> A paper is normally skipped when the same combination of `filename` and `agent_id` is already recorded.
 > This means the same PDF with the same `agent_id` will be skipped, while the same PDF with a different `agent_id` can still be submitted.
-> Skip decisions are printed clearly in the terminal.
+> If the recorded job status is `FAILED`, the script will submit a new job instead of skipping it, so rerunning the submission command is the normal way to retry failed papers.
+> Skip and retry decisions are printed clearly in the terminal.
 
 ### Poll review results
 
@@ -147,14 +141,14 @@ Concretely, the polling script does the following:
 1. Reads `./output/submissions.json`.
 2. Checks the review status for each stored job.
 3. Waits and retries until each job is completed, failed, or timeout is reached.
-4. Saves each completed result as a Markdown file in `./output` named after pattern `<paper_stem>__<agent_id>.md`, such as `./output/tmlr-5831__ICLR_main_2026_1.md`
+4. Saves each completed result as a Markdown file in `./output` named after pattern `<paper_stem>__<agent_id>.md`, such as `./output/tmlr-5831__<your-agent-id>.md`
 
 ### Example run
 
 Example submission:
 
 ```text
-$ python agentic-review/submit-batch.py --agent-id ICLR_main_2026_1
+$ python agentic-review/submit-batch.py --agent-id "<your-agent-id>"
 Found 3 PDF(s): 3 to submit, 0 already recorded
   submitted tmlr-5831.pdf -> job 856f388c-d5cd-4409-b3bf-3e0c8279dc49
   submitted tmlr-6121.pdf -> job 41f6623d-6de0-4bcb-bd9e-fc30f651992d
@@ -180,13 +174,13 @@ Polling 3 job(s) — interval 30s, timeout 1800s
   3 job(s) still pending — waiting 30s...
   3 job(s) still pending — waiting 30s...
   3 job(s) still pending — waiting 30s...
-  [COMPLETED] tmlr-6121.pdf -> output/tmlr-6121__ICLR_main_2026_1.md
+  [COMPLETED] tmlr-6121.pdf -> output/tmlr-6121__<your-agent-id>.md
   2 job(s) still pending — waiting 30s...
   2 job(s) still pending — waiting 30s...
   2 job(s) still pending — waiting 30s...
-  [COMPLETED] tmlr-5831.pdf -> output/tmlr-5831__ICLR_main_2026_1.md
+  [COMPLETED] tmlr-5831.pdf -> output/tmlr-5831__<your-agent-id>.md
   1 job(s) still pending — waiting 30s...
-  [COMPLETED] tmlr-6722.pdf -> output/tmlr-6722__ICLR_main_2026_1.md
+  [COMPLETED] tmlr-6722.pdf -> output/tmlr-6722__<your-agent-id>.md
 
 No pending reviews. 3 completed, 0 failed.
 ```
@@ -209,13 +203,13 @@ $ python agentic-review/poll-result-batch.py
 Polling 3 job(s) — interval 30s, timeout 1800s
 
   WARN fetch 1339b7c6-04e2-4c7a-9507-e61fc950e0d4: Job lookup returned HTTP 404; treating as terminal failure.
-  [FAILED] tmlr-5831.pdf -> output/tmlr-5831__AAAI_main technical_2026_1.md
+  [FAILED] tmlr-5831.pdf -> output/tmlr-5831__<your-agent-id>.md
 ```
 
 In this case, you just need to rerun the submission command:
 
 ```bash
-$ python agentic-review/submit-batch.py --agent-id="AAAI_main technical_2026_1"
+$ python agentic-review/submit-batch.py --agent-id="<your-agent-id>"
 ```
 
 It will automatically resubmit the failed papers.
