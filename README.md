@@ -17,14 +17,14 @@ This repository is intended to provide practical, runnable examples for common p
 From the repository root:
 
 ```bash
-python3 -m venv env
-source env/bin/activate
+$ python3 -m venv env
+$ source env/bin/activate
 ```
 
 ### 2. Install dependencies
 
 ```bash
-python -m pip install -r requirements.txt
+$ python -m pip install -r requirements.txt
 ```
 
 ### 3. Configure your environment
@@ -32,7 +32,7 @@ python -m pip install -r requirements.txt
 Create a local `.env` file from the provided example:
 
 ```bash
-cp env-example .env
+$ cp env-example .env
 ```
 
 Then edit `.env` and set your values:
@@ -52,7 +52,7 @@ The easiest way to test agentic review API is visiting https://cspaper.org/platf
 
 To submit agentic review jobs in batch, follow the steps below:
 
-### Prepare Input Papers
+### Prepare input papers
 
 By default, the scripts expect your paper PDFs in:
 
@@ -72,12 +72,12 @@ platform-examples/
 
 You can use a different input folder with `--paper-dir`, but if you do, use the same `--paper-dir` value for both submission and polling.
 
-### Submit Review Jobs in Batch
+### Submit review jobs in batch
 
 Run from the repository root:
 
 ```bash
-python agentic-review/submit-batch.py --agent-id="AAAI_main technical_2026_1"
+$ python agentic-review/submit-batch.py --agent-id="AAAI_main technical_2026_1"
 ```
 
 Note: you need to select the correct `agent-id` for your target venue or review template.
@@ -123,7 +123,7 @@ Each record includes:
 > This means the same PDF with the same `agent_id` will be skipped, while the same PDF with a different `agent_id` can still be submitted.
 > Skip decisions are printed clearly in the terminal.
 
-### Poll Review Results
+### Poll review results
 
 Polling is needed because review jobs are asynchronous. The main reasons are
 
@@ -133,13 +133,13 @@ Polling is needed because review jobs are asynchronous. The main reasons are
 To poll the review results, simply run:
 
 ```bash
-python agentic-review/poll-result-batch.py
+$ python agentic-review/poll-result-batch.py
 ```
 
 If you used a custom paper directory during submission, use the same one here:
 
 ```bash
-python agentic-review/poll-result-batch.py --paper-dir ./papers
+$ python agentic-review/poll-result-batch.py --paper-dir ./papers
 ```
 
 Concretely, the polling script does the following:
@@ -149,16 +149,16 @@ Concretely, the polling script does the following:
 3. Waits and retries until each job is completed, failed, or timeout is reached.
 4. Saves each completed result as a Markdown file in `./output` named after pattern `<paper_stem>__<agent_id>.md`, such as `./output/tmlr-5831__ICLR_main_2026_1.md`
 
-### Example Run
+### Example run
 
 Example submission:
 
 ```text
-python agentic-review/submit-batch.py --agent-id ICLR_main_2026_1
+$ python agentic-review/submit-batch.py --agent-id ICLR_main_2026_1
 Found 3 PDF(s): 3 to submit, 0 already recorded
-  submitted tmlr-5831.pdf -> job a0fa4ad6-8e46-4815-bbe7-8b19467bad72
-  submitted tmlr-6121.pdf -> job 7e9c681e-cec9-439b-9ead-4eacf915c71c
-  submitted tmlr-6722.pdf -> job cacc5455-a24b-4b94-8273-ed9130e74ee5
+  submitted tmlr-5831.pdf -> job 856f388c-d5cd-4409-b3bf-3e0c8279dc49
+  submitted tmlr-6121.pdf -> job 41f6623d-6de0-4bcb-bd9e-fc30f651992d
+  submitted tmlr-6722.pdf -> job c6125489-afd3-49a1-be98-a3d7118b9cb1
 
 3 submitted: 3 ok, 0 failed
 Submissions saved to output/submissions.json
@@ -167,7 +167,7 @@ Submissions saved to output/submissions.json
 Example polling:
 
 ```text
-python agentic-review/poll-result-batch.py
+$ python agentic-review/poll-result-batch.py
 
 Polling 3 job(s) — interval 30s, timeout 1800s
 
@@ -180,16 +180,18 @@ Polling 3 job(s) — interval 30s, timeout 1800s
   3 job(s) still pending — waiting 30s...
   3 job(s) still pending — waiting 30s...
   3 job(s) still pending — waiting 30s...
-  3 job(s) still pending — waiting 30s...
-  [COMPLETED] tmlr-5831.pdf -> output/tmlr-5831__ICLR_main_2026_1.md
-  2 job(s) still pending — waiting 30s...
   [COMPLETED] tmlr-6121.pdf -> output/tmlr-6121__ICLR_main_2026_1.md
+  2 job(s) still pending — waiting 30s...
+  2 job(s) still pending — waiting 30s...
+  2 job(s) still pending — waiting 30s...
+  [COMPLETED] tmlr-5831.pdf -> output/tmlr-5831__ICLR_main_2026_1.md
+  1 job(s) still pending — waiting 30s...
   [COMPLETED] tmlr-6722.pdf -> output/tmlr-6722__ICLR_main_2026_1.md
 
-All jobs collected.
+No pending reviews. 3 completed, 0 failed.
 ```
 
-### Review Job Visibility in the Platform UI
+### Review job visibility in the platform UI
 
 You can also inspect submitted jobs directly in the platform UI:
 https://cspaper.org/platform/review
@@ -197,6 +199,26 @@ https://cspaper.org/platform/review
 After entering your API key on that page, you can check available review templates and monitor submitted review jobs there as well.
 
 ![Review Jobs UI](images/review-jobs-ui.png)
+
+### Error handling
+The submitted jobs may fail due to LLM resouce exshausion, occasional invalid JSON payload, etc. In this case, during polling, you will see:
+
+```text
+$ python agentic-review/poll-result-batch.py
+
+Polling 3 job(s) — interval 30s, timeout 1800s
+
+  WARN fetch 1339b7c6-04e2-4c7a-9507-e61fc950e0d4: Job lookup returned HTTP 404; treating as terminal failure.
+  [FAILED] tmlr-5831.pdf -> output/tmlr-5831__AAAI_main technical_2026_1.md
+```
+
+In this case, you just need to rerun the submission command:
+
+```bash
+$ python agentic-review/submit-batch.py --agent-id="AAAI_main technical_2026_1"
+```
+
+It will automatically resubmit the failed papers.
 
 ## Paper Ranking
 

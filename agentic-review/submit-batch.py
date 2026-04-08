@@ -28,6 +28,7 @@ if str(REPO_ROOT) not in sys.path:
 
 import httpx
 from common.env_utils import resolve_api_key, resolve_api_url
+from common.review_status import is_terminal_failure, normalize_status
 
 
 def submission_key(filename: str, agent_id: str) -> str:
@@ -47,6 +48,10 @@ def load_submissions(out_path: Path) -> Dict[str, dict]:
 
 def save_submissions(out_path: Path, submissions: Dict[str, dict]) -> None:
     out_path.write_text(json.dumps(list(submissions.values()), indent=2))
+
+
+def is_failed_submission(entry: dict) -> bool:
+    return is_terminal_failure(entry.get("status"), entry.get("failed_reason"))
 
 
 def submit_job(
@@ -108,16 +113,29 @@ def main(args: argparse.Namespace) -> None:
     submissions = load_submissions(out_path)
 
     skipped = []
+    retries = []
     to_submit = []
     for pdf in pdfs:
         key = submission_key(pdf.name, args.agent_id)
         existing = submissions.get(key)
-        if existing:
+        if existing and is_failed_submission(existing):
+            retries.append((pdf, existing))
+            to_submit.append(pdf)
+        elif existing:
             skipped.append((pdf, existing))
         else:
             to_submit.append(pdf)
 
-    print(f"Found {len(pdfs)} PDF(s): {len(to_submit)} to submit, {len(skipped)} already recorded")
+    print(
+        f"Found {len(pdfs)} PDF(s): {len(to_submit)} to submit "
+        f"({len(retries)} retrying failed), {len(skipped)} already recorded"
+    )
+    for pdf, existing in retries:
+        print(
+            f"  retry {pdf.name} for agent {args.agent_id} "
+            f"(previous job {existing.get('job_id', 'unknown')} failed with "
+            f"status {normalize_status(existing.get('status')) or 'UNKNOWN'})"
+        )
     for pdf, existing in skipped:
         print(
             f"  skip {pdf.name} for agent {args.agent_id} "
